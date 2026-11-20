@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 深色下的主题差异：状态栏浅色图标，其余沿用 colors-night -->
+    <style name="Theme.DormQr" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:colorPrimary">@color/brand</item>
+        <item name="android:colorAccent">@color/brand</item>
+        <item name="android:windowBackground">@color/surface_page</item>
+        <item name="android:statusBarColor">@color/surface_page</item>
+        <item name="android:navigationBarColor">@color/surface_page</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+    </style>
+</resources>

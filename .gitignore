@@ -1,0 +1,55 @@
+# ---------- 构建产物 ----------
+build/
+.gradle/
+obj/
+bin/
+*.apk
+*.aab
+*.idsig
+*.dex
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+*.hprof
+
+# ---------- 构建脚本的临时输出 ----------
+tools/out/
+tools/out*/
+
+# ---------- 本机 / 凭证 ----------
+local.properties
+*.har.json
+*.keystore
+*.jks
+*.p12
+*.pfx
+*.pem
+
+# ---------- IDE / 编辑器 ----------
+.idea/
+*.iml
+.vs/
+.vscode/
+*.user
+*.suo
+*.swp
+*~
+
+# ---------- 系统 ----------
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# ---------- 杂物 ----------
+*.log
+*.tmp
+*.bak
+*.orig
+captures/
+
+# ---------- 本机资料（交接文档、报告、截图、HAR、旧 demo）----------
+docs/
+AGENTS.md
+
+# ---------- 工具生成、非本项目内容 ----------
+.github/modernize/

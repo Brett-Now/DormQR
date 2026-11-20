@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/surface_page">
+
+    <!-- 自绘标题栏：高度与状态栏 Insets 分开计算，绝不让内容钻到状态栏后面 -->
+    <!-- FrameLayout：返回键与标题互不挤压，手表上标题可真正居中 -->
+    <FrameLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/sp_1"
+        android:paddingRight="@dimen/sp_4"
+        android:paddingTop="@dimen/sp_2"
+        android:paddingBottom="@dimen/sp_2">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="start|center_vertical"
+            style="@style/TextAppearance.DormQr.Title"
+            android:text="@string/settings_title" />
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="@dimen/touch_min"
+            android:layout_height="@dimen/touch_min"
+            android:layout_gravity="start|center_vertical"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/action_back"
+            android:src="@drawable/ic_back"
+            android:scaleType="centerInside" />
+    </FrameLayout>
+
+    <ScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="@dimen/sp_3"
+            android:paddingRight="@dimen/sp_3"
+            android:paddingBottom="@dimen/sp_6" />
+    </ScrollView>
+
+    <!-- 底部固定保存条：滚动再长也够得着 -->
+    <LinearLayout
+        android:id="@+id/footer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/sp_3"
+        android:paddingRight="@dimen/sp_3"
+        android:paddingTop="@dimen/sp_2"
+        android:paddingBottom="@dimen/sp_3">
+
+        <Button
+            android:id="@+id/btnCancel"
+            style="@style/Widget.DormQr.Button.Tonal"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/btn_height"
+            android:layout_weight="1"
+            android:text="@string/action_cancel" />
+
+        <Button
+            android:id="@+id/btnSave"
+            style="@style/Widget.DormQr.Button.Primary"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/btn_height"
+            android:layout_weight="1.4"
+            android:layout_marginLeft="@dimen/sp_2"
+            android:text="@string/action_save" />
+    </LinearLayout>
+</LinearLayout>
+
+
+
+
+
+

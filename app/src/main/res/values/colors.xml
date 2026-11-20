@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 语义色：状态文字与图标同时表达，不能只靠颜色区分 -->
+    <color name="state_ok">#FF1F8A4C</color>
+    <color name="state_warn">#FFB26A00</color>
+    <color name="state_error">#FFC0392B</color>
+    <color name="state_info">#FF2F6FEB</color>
+
+    <!-- 表层：页面 / 卡片 / 输入框 -->
+    <color name="surface_page">#FFF7F8FA</color>
+    <color name="surface_card">#FFFFFFFF</color>
+    <color name="surface_field">#FFF1F3F6</color>
+    <color name="surface_chip">#14000000</color>
+    <color name="outline">#1F000000</color>
+
+    <!-- 文字 -->
+    <color name="text_primary">#FF14161A</color>
+    <color name="text_secondary">#FF5F6570</color>
+    <color name="text_on_primary">#FFFFFFFF</color>
+
+    <!-- 主色（动态色不可用时兜底） -->
+    <color name="brand">#FF2F6FEB</color>
+    <color name="brand_container">#1A2F6FEB</color>
+
+    <!-- 二维码区：永远是纯黑白，不跟随主题 -->
+    <color name="qr_bg">#FFFFFFFF</color>
+    <color name="qr_fg">#FF000000</color>
+
+    <!-- 全屏页背景（深色，手表省电） -->
+    <color name="page_dark">#FF000000</color>
+</resources>

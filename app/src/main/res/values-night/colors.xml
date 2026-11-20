@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="state_ok">#FF6DD58C</color>
+    <color name="state_warn">#FFF2B44C</color>
+    <color name="state_error">#FFFF8A80</color>
+    <color name="state_info">#FF9EC2FF</color>
+
+    <color name="surface_page">#FF0E1014</color>
+    <color name="surface_card">#FF191C22</color>
+    <color name="surface_field">#FF232830</color>
+    <color name="surface_chip">#26FFFFFF</color>
+    <color name="outline">#2EFFFFFF</color>
+
+    <color name="text_primary">#FFF2F4F8</color>
+    <color name="text_secondary">#FF9AA2AF</color>
+    <color name="text_on_primary">#FF07131F</color>
+
+    <color name="brand">#FF9EC2FF</color>
+    <color name="brand_container">#339EC2FF</color>
+
+    <color name="qr_bg">#FFFFFFFF</color>
+    <color name="qr_fg">#FF000000</color>
+</resources>
