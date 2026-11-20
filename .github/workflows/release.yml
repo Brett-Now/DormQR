@@ -101,7 +101,11 @@ jobs:
         run: |
           $aapt2 = Join-Path $env:ANDROID_SDK_ROOT 'build-tools/34.0.0/aapt2.exe'
           $badging = & $aapt2 dump badging $env:APK_PATH
-          $ver = ($badging | Select-String 'versionName=' | Select-Object -First 1) -replace ".*versionName='([^']+)'.*", '$1'
+          # 注意：badging 里还有 platformBuildVersionName='15'，必须只取独立的 versionName
+          $text = ($badging -join "`n")
+          $m = [regex]::Match($text, "\sversionName='([^']+)'")
+          if (-not $m.Success) { throw '无法从 badging 中解析 versionName' }
+          $ver = $m.Groups[1].Value
           $ref = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME } else { '${{ inputs.tag }}' }
           Write-Host "包内版本 $ver，触发标签 $ref"
           if ($ref -ne "v$ver") {
@@ -126,3 +130,4 @@ jobs:
           files: ${{ env.APK_PATH }}
           draft: ${{ inputs.draft || false }}
           prerelease: false
+
