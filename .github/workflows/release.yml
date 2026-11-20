@@ -1,0 +1,128 @@
+name: Release APK
+
+# 打 v* 标签时自动发布；也可以在 Actions 页面手动触发
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: '要发布的标签，例如 v1.2'
+        required: true
+      draft:
+        description: '先存为草稿'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    # 构建脚本是 PowerShell + aapt2/d8/apksigner 的 Windows 路径，直接用 Windows 运行器最省事
+    runs-on: windows-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 准备 JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: 安装 Android SDK 组件
+        shell: pwsh
+        run: |
+          $sdk = $env:ANDROID_SDK_ROOT
+          if (-not $sdk) { $sdk = $env:ANDROID_HOME }
+          Write-Host "SDK: $sdk"
+          $sdkmanager = Join-Path $sdk 'cmdline-tools/latest/bin/sdkmanager.bat'
+          if (-not (Test-Path $sdkmanager)) {
+              $sdkmanager = (Get-ChildItem (Join-Path $sdk 'cmdline-tools') -Recurse -Filter sdkmanager.bat |
+                             Select-Object -First 1).FullName
+          }
+          Write-Host "sdkmanager: $sdkmanager"
+          & $sdkmanager --install 'platforms;android-35' 'build-tools;34.0.0' | Out-Null
+          "ANDROID_SDK_ROOT=$sdk" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: 还原签名用的 keystore
+        shell: pwsh
+        env:
+          KEYSTORE_B64: ${{ secrets.DORMQR_KEYSTORE_B64 }}
+        run: |
+          if (-not $env:KEYSTORE_B64) {
+              throw '缺少 secret DORMQR_KEYSTORE_B64：仓库 Settings → Secrets and variables → Actions → 仓库机密 里添加（keystore 的 base64）'
+          }
+          New-Item -ItemType Directory -Force -Path 'build' | Out-Null
+          $bytes = [Convert]::FromBase64String($env:KEYSTORE_B64)
+          [IO.File]::WriteAllBytes('build/dormqr-debug.keystore', $bytes)
+          Write-Host ("keystore 已写入，{0} 字节" -f $bytes.Length)
+
+      - name: 构建 Release
+        shell: pwsh
+        env:
+          STORE_PASS: ${{ secrets.DORMQR_STORE_PASS }}
+        run: |
+          # 脚本里的口令是硬编码的，这里对齐到 secret，避免两处不一致
+          $script = 'tools/build-apk.ps1'
+          $text = Get-Content $script -Raw
+          $text = $text.Replace('dormqr123', $env:STORE_PASS)
+          Set-Content -Path $script -Value $text -Encoding utf8
+
+          pwsh -NoProfile -ExecutionPolicy Bypass -File $script -Release `
+               -Sdk $env:ANDROID_SDK_ROOT -BuildTools '34.0.0' -Jdk $env:JAVA_HOME
+
+      - name: 校验签名并计算指纹
+        shell: pwsh
+        run: |
+          $apk = Get-ChildItem 'build/apk' -Filter 'DormQR-v*-release.apk' | Select-Object -First 1
+          if (-not $apk) { throw '没有找到 release APK' }
+          $apksigner = Join-Path $env:ANDROID_SDK_ROOT 'build-tools/34.0.0/apksigner.bat'
+
+          & $apksigner verify --print-certs $apk.FullName | Out-Host
+          if ($LASTEXITCODE -ne 0) { throw 'apksigner verify 失败' }
+
+          $cert = (& $apksigner verify --print-certs $apk.FullName |
+                   Select-String 'SHA-256 digest' | Select-Object -First 1) -replace '.*digest:\s*', ''
+          $sha  = (Get-FileHash $apk.FullName -Algorithm SHA256).Hash.ToLower()
+
+          "APK_PATH=$($apk.FullName)"       | Out-File -FilePath $env:GITHUB_ENV -Append
+          "APK_NAME=$($apk.Name)"           | Out-File -FilePath $env:GITHUB_ENV -Append
+          "APK_SHA256=$sha"                 | Out-File -FilePath $env:GITHUB_ENV -Append
+          "APK_CERT=$($cert.Trim())"        | Out-File -FilePath $env:GITHUB_ENV -Append
+          Write-Host "SHA-256: $sha"
+          Write-Host "证书:    $cert"
+
+      - name: 校验标签与包内版本一致
+        shell: pwsh
+        run: |
+          $aapt2 = Join-Path $env:ANDROID_SDK_ROOT 'build-tools/34.0.0/aapt2.exe'
+          $badging = & $aapt2 dump badging $env:APK_PATH
+          $ver = ($badging | Select-String 'versionName=' | Select-Object -First 1) -replace ".*versionName='([^']+)'.*", '$1'
+          $ref = if ($env:GITHUB_REF_TYPE -eq 'tag') { $env:GITHUB_REF_NAME } else { '${{ inputs.tag }}' }
+          Write-Host "包内版本 $ver，触发标签 $ref"
+          if ($ref -ne "v$ver") {
+              throw "标签 $ref 与包内版本 v$ver 不一致，请先改 tools/build-apk.ps1 里的 `$versionName"
+          }
+          "RELEASE_TAG=$ref" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: 生成发布说明
+        shell: pwsh
+        run: |
+          $body = Get-Content '.github/release-notes.md' -Raw
+          $body = $body.Replace('{{SHA256}}', $env:APK_SHA256).Replace('{{CERT_SHA256}}', $env:APK_CERT)
+          Set-Content -Path 'release-body.md' -Value $body -Encoding utf8
+          Get-Content 'release-body.md' | Out-Host
+
+      - name: 创建 Release 并上传 APK
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: DormQR ${{ env.RELEASE_TAG }}
+          body_path: release-body.md
+          files: ${{ env.APK_PATH }}
+          draft: ${{ inputs.draft || false }}
+          prerelease: false
