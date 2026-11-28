@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> **NFC can now be configured, so this project is archived.**
+
 <h1 align="center">DormQR</h1>
 
 <p align="center">
@@ -115,3 +118,4 @@ This is an unofficial personal tool, not affiliated with Qilu University of Tech
 AGPL-3.0. Third-party code and assets keep their own terms.
 
 Copyright (C) 2026 Brett-Now
+

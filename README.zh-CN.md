@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> **现已可以配置NFC，故归档。**
+
 <h1 align="center">门禁码 / DormQR</h1>
 
 <p align="center">
@@ -115,3 +118,4 @@ pwsh tools/build-apk.ps1
 本项目采用 AGPL-3.0。第三方代码和素材以各自声明为准。
 
 Copyright (C) 2026 Brett-Now
+
